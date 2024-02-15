@@ -8,8 +8,6 @@ import (
 func main() {
 	args := os.Args[1:]
 
-	fmt.Println(args);
-
 	// exiting if nothing was passed
 	if len(args) < 1 {
 		os.Exit(0)

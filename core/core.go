@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"math"
 )
 
 func parse_instructions(arguments []string) (Instructions) {
@@ -55,9 +56,56 @@ func gat(file string, flags Flags) (int) {
 		return FILE_READ_ERROR
 	}
 
+	// numbering the lines
+	var line_number int = 0
+	var line_fmt_str string = ""
+
+	// if NUMBERED is true, count the new lines to nicely format
+	// everything
+	if flags.NUMBERED {
+		for i := 0; i < len(fd); i++ {
+			if fd[i] == '\n' {
+				line_number += 1
+			}
+		}
+
+		// accounting for either no new lines
+		// or the final line
+		line_number += 1
+
+		// calculating padding
+		line_fmt_str = fmt.Sprintf("%%%dd: ", int(math.Log10(float64(line_number))))
+
+		// resetting line_number for other use
+		line_number = 1
+	}
+
+	// printing initial line number
+	if flags.NUMBERED {
+		fmt.Printf(line_fmt_str, line_number)
+		line_number++
+	}
+
 	// printing the file
 	for i := 0; i < len(fd); i++ {
+		// flags that trigger based on a newline character
+		if fd[i] == '\n' {
+			// showing end of lines
+			if flags.SHOWEND {
+				fmt.Print("$")
+			}
+		}
+
+		// printing the char
 		fmt.Printf("%c", fd[i])
+	
+		// flags that trigger based on a newline character
+		if fd[i] == '\n' {
+			if flags.NUMBERED {
+				fmt.Printf(line_fmt_str, line_number)
+				line_number++
+			}
+		}
 	}
 
 	return NORMAL
